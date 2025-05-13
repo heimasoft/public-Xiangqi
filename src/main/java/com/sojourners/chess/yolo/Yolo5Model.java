@@ -11,8 +11,16 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.*;
 
+/**
+ * YOLOv5模型实现类，用于象棋棋盘的检测和棋子识别
+ * 继承自OnnxModel，提供基于ONNX Runtime的模型推理功能
+ */
 public class Yolo5Model extends OnnxModel {
 
+    /**
+     * 获取模型文件路径
+     * @return 模型文件路径字符串
+     */
     @Override
     public String getModelPath() {
         return "model/middle.onnx";
@@ -62,6 +70,10 @@ public class Yolo5Model extends OnnxModel {
         }
     }
 
+    /**
+     * 初始化空白棋盘
+     * @param board 10x9的二维字符数组，表示棋盘状态
+     */
     private void setBlankBoard(char[][] board) {
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 9; j++) {
@@ -70,6 +82,11 @@ public class Yolo5Model extends OnnxModel {
         }
     }
 
+    /**
+     * 从检测结果中寻找棋盘位置
+     * @param results 检测结果列表
+     * @return 棋盘位置矩形区域，若未找到返回null
+     */
     private java.awt.Rectangle findBoardPosition(List<DetectResult> results) {
         int boardCount = 0;
         java.awt.Rectangle boardPos = new java.awt.Rectangle();
@@ -135,6 +152,12 @@ public class Yolo5Model extends OnnxModel {
         }
     }
 
+    /**
+     * 使用YOLOv5模型进行预测
+     * @param image 输入图像
+     * @return 检测结果列表
+     * @throws OrtException ONNX Runtime异常
+     */
     private List<DetectResult> predict(BufferedImage image) throws OrtException {
 
         List<DetectResult> list = null;
@@ -164,6 +187,12 @@ public class Yolo5Model extends OnnxModel {
         return list;
     }
 
+    /**
+     * 预处理输入图像
+     * @param image 原始图像
+     * @param rate 缩放比例
+     * @return 预处理后的三维浮点数组
+     */
     float[][][] processInput(BufferedImage image, float rate) {
 
         int destW = Math.round(image.getWidth() * rate);
@@ -201,6 +230,11 @@ public class Yolo5Model extends OnnxModel {
         return arr;
     }
 
+    /**
+     * 非极大值抑制算法，用于过滤重叠的检测框
+     * @param list 检测结果列表
+     * @return 过滤后的检测结果列表
+     */
     List<DetectResult> nms(List<DetectResult> list) {
 
         List<DetectResult> results = new ArrayList<>();
@@ -238,6 +272,12 @@ public class Yolo5Model extends OnnxModel {
 
         return results;
     }
+    /**
+     * 计算两个矩形框的交并比(IOU)
+     * @param a 矩形框A
+     * @param b 矩形框B
+     * @return 交并比值
+     */
     private double boxIou(Rectangle a, Rectangle b) {
         return this.boxIntersection(a, b) / this.boxUnion(a, b);
     }
@@ -261,6 +301,13 @@ public class Yolo5Model extends OnnxModel {
         return right - left;
     }
 
+    /**
+     * 处理模型输出，生成检测结果列表
+     * @param output 模型输出数组
+     * @param img 原始图像
+     * @param rate 缩放比例
+     * @return 检测结果列表
+     */
     List<DetectResult> processOutput(float[] output, BufferedImage img, float rate) {
         List<DetectResult> list = new ArrayList<>();
 
@@ -294,6 +341,9 @@ public class Yolo5Model extends OnnxModel {
         return nms(list);
     }
 
+    /**
+     * 检测结果类，包含检测到的目标信息
+     */
     class DetectResult {
         char label;
         Rectangle rect;
@@ -329,6 +379,9 @@ public class Yolo5Model extends OnnxModel {
         }
     }
 
+    /**
+     * 矩形区域类，用于表示检测框的位置和大小
+     */
     class Rectangle {
         float x;
         float y;

@@ -3,14 +3,29 @@ package com.sojourners.chess.util;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 象棋工具类
+ * 包含象棋规则相关的方法实现
+ */
 public class XiangqiUtils {
 
 
-    public static boolean canGo(char[][] board, int x1, int y1, int x2, int y2) {
+    /**
+ * 判断棋子是否可以移动到目标位置
+ * @param board 当前棋盘状态
+ * @param x1 起始位置x坐标
+ * @param y1 起始位置y坐标
+ * @param x2 目标位置x坐标
+ * @param y2 目标位置y坐标
+ * @return 是否可以移动
+ */
+public static boolean canGo(char[][] board, int x1, int y1, int x2, int y2) {
         if (board[x1][y1] == ' ' || board[x2][y2] != ' ' && isRed(board[x1][y1]) == isRed(board[x2][y2])) {
             return false;
         }
         switch (board[x1][y1]) {
+                // 车：直线移动，不能跨子
+
             case 'r':
             case 'R': {
                 if (x1 != x2 && y1 != y2) {
@@ -36,6 +51,8 @@ public class XiangqiUtils {
                 }
             }
             case 'n':
+                // 马：走日字，不能蹩马腿
+
             case 'N': {
                 int absX = Math.abs(x1 - x2), absY = Math.abs(y1 - y2);
                 if (!(absX == 1 && absY == 2 || absX == 2 && absY == 1)) {
@@ -58,6 +75,8 @@ public class XiangqiUtils {
                 return c == ' ';
             }
             case 'b':
+                // 象：田字移动，不能过河
+
             case 'B': {
                 boolean isRed = isRed(board[x1][y1]);
                 if (isRed && x2 < 5 || !isRed && x2 > 4) {
@@ -70,6 +89,8 @@ public class XiangqiUtils {
                 return board[(x1 + x2) / 2][(y1 + y2) / 2] == ' ';
             }
             case 'a':
+                // 士：斜线移动，不能出九宫
+
             case 'A': {
                 if (y2 < 3 || y2 > 5) {
                     return false;
@@ -82,6 +103,8 @@ public class XiangqiUtils {
                 return absX == 1 && absY == 1;
             }
             case 'k':
+                // 将：直线一步，不能出九宫
+
             case 'K': {
                 if (y2 < 3 || y2 > 5) {
                     return false;
@@ -94,6 +117,8 @@ public class XiangqiUtils {
                 return absX == 1 && abxY == 0 || absX == 0 && abxY == 1;
             }
             case 'c':
+                // 炮：直线移动，吃子需隔一子
+
             case 'C': {
                 if (x1 != x2 && y1 != y2) {
                     return false;
@@ -119,7 +144,9 @@ public class XiangqiUtils {
                     return count == 1 && board[x2][y2] != ' ' || count == 0 && board[x2][y2] == ' ';
                 }
             }
-            case 'p': {
+            case 'p':
+                // 兵：过河前只能前进，过河后可左右移动
+ {
                 if (x1 < 5) {
                     return (y1 == y2) && (x2 - x1) == 1;
                 } else {
@@ -139,7 +166,13 @@ public class XiangqiUtils {
 
     }
 
-    public static boolean isJiang(char[][] board, boolean isRed) {
+    /**
+ * 判断是否被将军
+ * @param board 当前棋盘状态
+ * @param isRed 是否是红方
+ * @return 是否被将军
+ */
+public static boolean isJiang(char[][] board, boolean isRed) {
         int bx = 0, by = 0;
         for (int i = 0; i < 3; i++) {
             for (int j = 3; j < 6; j++) {
@@ -286,7 +319,13 @@ public class XiangqiUtils {
         return false;
     }
 
-    public static boolean isSha(char[][] board, boolean isRed) {
+    /**
+ * 判断是否被将死
+ * @param board 当前棋盘状态
+ * @param isRed 是否是红方
+ * @return 是否被将死
+ */
+public static boolean isSha(char[][] board, boolean isRed) {
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[0].length; j++) {
                 if (!isRed && (board[i][j] >= 'a' && board[i][j] <= 'z') || isRed && (board[i][j] >= 'A' && board[i][j] <= 'Z')) {
@@ -301,6 +340,8 @@ public class XiangqiUtils {
     private static boolean jieJiang(char[][] board, boolean isRed, int x, int y) {
         switch (board[y][x]) {
             case 'k':
+                // 将：直线一步，不能出九宫
+
             case 'K': {
                 if (x - 1 >= 3 && (board[y][x - 1] == ' ' || isRed(board[y][x - 1]) != isRed)) {
                     if (jieJiang(board, isRed, x, y, x - 1, y)) {
@@ -325,6 +366,8 @@ public class XiangqiUtils {
                 return false;
             }
             case 'c':
+                // 炮：直线移动，吃子需隔一子
+
             case 'C': {
                 boolean f = false;
                 for (int i = y, j = x - 1; j >= 0; j--) {
@@ -417,6 +460,8 @@ public class XiangqiUtils {
                 return false;
             }
             case 'p':
+                // 兵：过河前只能前进，过河后可左右移动
+
             case 'P': {
                 if (isRed && y - 1 >= 0 || !isRed && y + 1 <= 9) {
                     int i = isRed ? y - 1 : y + 1;
@@ -477,6 +522,8 @@ public class XiangqiUtils {
                 return false;
             }
             case 'n':
+                // 马：走日字，不能蹩马腿
+
             case 'N': {
                 if (x - 2 >= 0 && board[y][x - 1] == ' ') {
                     if (y - 1 >= 0 && (board[y - 1][x - 2] == ' ' || isRed(board[y - 1][x - 2]) != isRed)) {
@@ -521,6 +568,8 @@ public class XiangqiUtils {
                 return false;
             }
             case 'b':
+                // 象：田字移动，不能过河
+
             case 'B': {
                 if (x - 2 >= 0 && y - 2 >= 0 && board[y - 1][x - 1] == ' ' && (isRed && y - 2 >= 5 || !isRed)) {
                     if (board[y - 2][x - 2] == ' ' || isRed(board[y - 2][x - 2]) != isRed) {
@@ -549,6 +598,8 @@ public class XiangqiUtils {
                 return false;
             }
             case 'a':
+                // 士：斜线移动，不能出九宫
+
             case 'A': {
                 if (x - 1 >= 3 && y - 1 >= (isRed ? 7 : 0) && (board[y - 1][x - 1] == ' ' || isRed(board[y - 1][x - 1]) != isRed)) {
                     if (jieJiang(board, isRed, x, y, x - 1, y - 1))
